@@ -42,6 +42,7 @@ data class SitePhoto(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val label: String = "Progress Image",
+    val imagePath: String, // Path to the image in internal storage
     val dateAdded: Long = System.currentTimeMillis() // Store as Long for Room
 )
 

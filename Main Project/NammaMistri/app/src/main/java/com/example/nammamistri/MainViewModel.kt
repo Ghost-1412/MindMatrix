@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Calendar
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -55,7 +56,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         if (lastAttendanceDay != today) {
             viewModelScope.launch {
-                // Using a custom DAO method to reset isPresentToday for all workers at start of day
                 val database = AppDatabase.getDatabase(getApplication())
                 database.workerDao().resetAllAttendance()
                 sharedPreferences.edit().putLong("last_attendance_day_timestamp", today).apply()
@@ -101,7 +101,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
 
-        // Get current workers from DB to compare state
         val currentWorkers = allWorkers.first()
         
         val processedWorkers = updatedWorkers.map { updatedWorker ->
@@ -111,11 +110,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             var newLastAttendanceDate = updatedWorker.lastAttendanceDate
 
             if (updatedWorker.isPresentToday == true && originalWorker?.lastAttendanceDate != today) {
-                // Newly marked present today
                 newDaysWorked += 1
                 newLastAttendanceDate = today
             } else if (updatedWorker.isPresentToday == false && originalWorker?.lastAttendanceDate == today) {
-                // Changed from present to absent today - undo the increment
                 newDaysWorked = (newDaysWorked - 1).coerceAtLeast(0)
                 newLastAttendanceDate = 0
             }
@@ -134,6 +131,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deletePhoto(photo: SitePhoto) = viewModelScope.launch {
+        // Delete the file from internal storage first
+        val file = File(photo.imagePath)
+        if (file.exists()) {
+            file.delete()
+        }
         repository.deletePhoto(photo)
     }
 }

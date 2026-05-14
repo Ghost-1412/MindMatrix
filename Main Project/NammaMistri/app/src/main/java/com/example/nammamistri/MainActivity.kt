@@ -168,7 +168,8 @@ fun NammaMistriApp(viewModel: MainViewModel) {
                         Screen.PHOTOS -> SitePhotosScreen(
                             language = currentLanguage,
                             photos = sitePhotos,
-                            onAddPhoto = { viewModel.insertPhoto(it) }
+                            onAddPhoto = { viewModel.insertPhoto(it) },
+                            onDeletePhoto = { viewModel.deletePhoto(it) }
                         )
                         Screen.ADD_EDIT_WORKER -> AddEditWorkerScreen(
                             language = currentLanguage,
