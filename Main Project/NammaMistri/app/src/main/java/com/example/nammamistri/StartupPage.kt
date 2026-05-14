@@ -252,11 +252,15 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     value = mobile,
-                    onValueChange = { mobile = it },
+                    onValueChange = { 
+                        if (it.length <= 10 && it.all { char -> char.isDigit() }) {
+                            mobile = it 
+                        }
+                    },
                     label = { Text(if (language == Language.ENGLISH) "Mobile Number" else "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF2C2C2C),
                         unfocusedContainerColor = Color(0xFF2C2C2C),
@@ -269,6 +273,10 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
+                        if (mobile.length != 10) {
+                            Toast.makeText(context, if (language == Language.ENGLISH) "Enter 10-digit mobile number" else "10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         scope.launch {
                             val result = viewModel.registerUser(User(email, password, mobile))
                             if (result != -1L) {
@@ -340,11 +348,15 @@ fun ForgotPasswordScreen(
                 
                 OutlinedTextField(
                     value = mobile,
-                    onValueChange = { mobile = it },
+                    onValueChange = { 
+                        if (it.length <= 10 && it.all { char -> char.isDigit() }) {
+                            mobile = it 
+                        }
+                    },
                     label = { Text(if (language == Language.ENGLISH) "Mobile Number" else "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ") },
                     modifier = Modifier.fillMaxWidth(),
                     leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = Color(0xFF2C2C2C),
                         unfocusedContainerColor = Color(0xFF2C2C2C),
@@ -357,6 +369,10 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
+                        if (mobile.length != 10) {
+                            Toast.makeText(context, if (language == Language.ENGLISH) "Enter 10-digit mobile number" else "10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
                         scope.launch {
                             val user = viewModel.getUserByMobile(mobile)
                             if (user != null) {

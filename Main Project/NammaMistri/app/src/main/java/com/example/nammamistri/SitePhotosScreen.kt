@@ -39,6 +39,7 @@ fun SitePhotosScreen(
     onDeletePhoto: (SitePhoto) -> Unit
 ) {
     val context = LocalContext.current
+    var photoToDelete by remember { mutableStateOf<SitePhoto?>(null) }
     
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -57,6 +58,33 @@ fun SitePhotosScreen(
             }
         }
     )
+
+    if (photoToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { photoToDelete = null },
+            title = {
+                Text(if (language == Language.ENGLISH) "Confirm Delete" else "ಅಳಿಸುವಿಕೆಯನ್ನು ಖಚಿತಪಡಿಸಿ")
+            },
+            text = {
+                Text(if (language == Language.ENGLISH) "Are you sure you want to delete this photo?" else "ನೀವು ಈ ಫೋಟೋವನ್ನು ಅಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        photoToDelete?.let { onDeletePhoto(it) }
+                        photoToDelete = null
+                    }
+                ) {
+                    Text(if (language == Language.ENGLISH) "Delete" else "ಅಳಿಸಿ", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { photoToDelete = null }) {
+                    Text(if (language == Language.ENGLISH) "Cancel" else "ರದ್ದುಗೊಳಿಸಿ")
+                }
+            }
+        )
+    }
 
     // Group photos by Month
     val groupedPhotos = photos.groupBy { photo ->
@@ -110,7 +138,7 @@ fun SitePhotosScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     rowPhotos.forEach { photo ->
-                        PhotoCard(photo, onDeletePhoto, Modifier.weight(1f))
+                        PhotoCard(photo, onDelete = { photoToDelete = it }, Modifier.weight(1f))
                     }
                     if (rowPhotos.size == 1) {
                         Spacer(modifier = Modifier.weight(1f))

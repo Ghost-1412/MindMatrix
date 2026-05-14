@@ -23,6 +23,9 @@ interface WorkerDao {
     @Query("SELECT * FROM workers")
     fun getAllWorkers(): Flow<List<Worker>>
 
+    @Query("SELECT * FROM workers WHERE id = :id")
+    suspend fun getWorkerById(id: Long): Worker?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorker(worker: Worker)
 
@@ -35,11 +38,29 @@ interface WorkerDao {
     @Query("DELETE FROM workers")
     suspend fun deleteAllWorkers()
 
-    @Query("UPDATE workers SET daysWorked = 0")
-    suspend fun resetAllDaysWorked()
+    @Query("UPDATE workers SET daysWorked = 0, monthlyTotalEarnings = 0.0, advancePaid = 0.0")
+    suspend fun resetMonthlyData()
 
     @Query("UPDATE workers SET isPresentToday = NULL")
-    suspend fun resetAllAttendance()
+    suspend fun resetDailyAttendance()
+}
+
+@Dao
+interface AttendanceDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateAttendance(record: AttendanceRecord)
+
+    @Query("SELECT * FROM attendance_records WHERE workerId = :workerId AND date = :date")
+    suspend fun getAttendance(workerId: Long, date: Long): AttendanceRecord?
+
+    @Query("SELECT * FROM attendance_records WHERE workerId = :workerId AND date >= :startDate AND date <= :endDate")
+    fun getAttendanceForMonth(workerId: Long, startDate: Long, endDate: Long): Flow<List<AttendanceRecord>>
+
+    @Query("SELECT * FROM attendance_records WHERE date = :date")
+    fun getAttendanceForAllWorkers(date: Long): Flow<List<AttendanceRecord>>
+    
+    @Delete
+    suspend fun deleteAttendance(record: AttendanceRecord)
 }
 
 @Dao

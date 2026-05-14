@@ -25,6 +25,34 @@ fun AddEditWorkerScreen(
     var wage by remember { mutableStateOf(worker?.dailyWage?.toString() ?: "") }
     var days by remember { mutableStateOf(worker?.daysWorked?.toString() ?: "0") }
     var advance by remember { mutableStateOf(worker?.advancePaid?.toString() ?: "") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog && worker != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = {
+                Text(if (language == Language.ENGLISH) "Confirm Delete" else "ಅಳಿಸುವಿಕೆಯನ್ನು ಖಚಿತಪಡಿಸಿ")
+            },
+            text = {
+                Text(if (language == Language.ENGLISH) "Are you sure you want to delete this worker?" else "ನೀವು ಈ ಕಾರ್ಮಿಕರನ್ನು ಅಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDelete(worker)
+                    }
+                ) {
+                    Text(if (language == Language.ENGLISH) "Delete" else "ಅಳಿಸಿ", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(if (language == Language.ENGLISH) "Cancel" else "ರದ್ದುಗೊಳಿಸಿ")
+                }
+            }
+        )
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(
@@ -38,7 +66,7 @@ fun AddEditWorkerScreen(
                 fontWeight = FontWeight.Bold
             )
             if (worker != null) {
-                IconButton(onClick = { onDelete(worker) }) {
+                IconButton(onClick = { showDeleteDialog = true }) {
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Worker", tint = Color.Red)
                 }
             }

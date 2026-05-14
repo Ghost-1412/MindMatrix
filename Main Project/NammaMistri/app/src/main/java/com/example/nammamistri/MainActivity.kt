@@ -40,6 +40,7 @@ fun NammaMistriApp(viewModel: MainViewModel) {
     
     val workers by viewModel.allWorkers.collectAsState(initial = emptyList())
     val sitePhotos by viewModel.allPhotos.collectAsState(initial = emptyList())
+    val attendanceRecords by viewModel.attendanceForSelectedDate.collectAsState()
 
     var workerToEdit by remember { mutableStateOf<Worker?>(null) }
 
@@ -49,6 +50,7 @@ fun NammaMistriApp(viewModel: MainViewModel) {
             Screen.REGISTER, Screen.FORGOT_PASSWORD -> Screen.LOGIN
             Screen.RESET_PASSWORD -> Screen.FORGOT_PASSWORD
             Screen.ADD_EDIT_WORKER, Screen.ATTENDANCE -> Screen.LABOR
+            Screen.CALENDAR -> Screen.HOME
             else -> Screen.HOME
         }
     }
@@ -114,13 +116,14 @@ fun NammaMistriApp(viewModel: MainViewModel) {
                         onBack = { 
                             currentScreen = when (currentScreen) {
                                 Screen.ADD_EDIT_WORKER, Screen.ATTENDANCE -> Screen.LABOR
+                                Screen.CALENDAR -> Screen.HOME
                                 else -> Screen.HOME
                             }
                         }
                     )
                 },
                 bottomBar = {
-                    if (currentScreen != Screen.ADD_EDIT_WORKER && currentScreen != Screen.ATTENDANCE) {
+                    if (currentScreen != Screen.ADD_EDIT_WORKER && currentScreen != Screen.ATTENDANCE && currentScreen != Screen.CALENDAR) {
                         BottomNav(
                             currentScreen = currentScreen,
                             onScreenSelected = { currentScreen = it },
@@ -161,8 +164,20 @@ fun NammaMistriApp(viewModel: MainViewModel) {
                             language = currentLanguage,
                             workers = workers,
                             onUpdateAttendance = { updatedWorkers ->
-                                viewModel.updateAttendance(updatedWorkers)
+                                // Using the new updateAttendance logic from ViewModel for batch today
+                                updatedWorkers.forEach { worker ->
+                                    viewModel.updateAttendance(worker, System.currentTimeMillis(), worker.isPresentToday, worker.dailyWage)
+                                }
                                 currentScreen = Screen.LABOR
+                            }
+                        )
+                        Screen.CALENDAR -> CalendarScreen(
+                            language = currentLanguage,
+                            workers = workers,
+                            attendanceRecords = attendanceRecords,
+                            onDateSelected = { viewModel.loadAttendanceForDate(it) },
+                            onUpdateAttendance = { worker, date, isPresent, dailyWage ->
+                                viewModel.updateAttendance(worker, date, isPresent, dailyWage)
                             }
                         )
                         Screen.PHOTOS -> SitePhotosScreen(

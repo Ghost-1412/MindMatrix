@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
@@ -64,6 +65,16 @@ fun HomeScreen(language: Language, workers: List<Worker>, onNavigate: (Screen) -
                     }
                 }
             }
+        }
+
+        item {
+            ActionCard(
+                icon = Icons.Default.CalendarMonth,
+                title = if (language == Language.ENGLISH) "Attendance Calendar" else "ಹಾಜರಾತಿ ಕ್ಯಾಲೆಂಡರ್",
+                desc = if (language == Language.ENGLISH) "View and manage historical attendance records by date." else "ದಿನಾಂಕದ ಮೂಲಕ ಐತಿಹಾಸಿಕ ಹಾಜರಾತಿ ದಾಖಲೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ ಮತ್ತು ನಿರ್ವಹಿಸಿ.",
+                actionText = if (language == Language.ENGLISH) "OPEN CALENDAR →" else "ಕ್ಯಾಲೆಂಡರ್ ತೆರೆಯಿರಿ →",
+                onClick = { onNavigate(Screen.CALENDAR) }
+            )
         }
         
         item {
